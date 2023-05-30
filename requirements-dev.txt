@@ -13,5 +13,3 @@ coverage[toml]>=6.1.1
 myst-parser>=0.15.2
 packaging>=20.0.0
 markupsafe==2.0.1
-
-pyquaternion
