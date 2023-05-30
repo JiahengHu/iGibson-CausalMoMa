@@ -9,20 +9,20 @@ trav_map_resolution: 0.1
 trav_map_erosion: 3
 should_open_all_doors: true
 
-#added for testing purpose
 hide_robot: false
-load_room_types: 'living_room' # "kitchen"
+load_room_types: 'living_room'
 not_load_object_categories: "ceilings"
+load_object_categories: ["bottom_cabinet_no_top", "sofa", "bottom_cabinet", "fridge", "stool"]
 
 # domain randomization
 texture_randomization_freq: null
 object_randomization_freq: null
 
-robot_name: "Fetch"
+robot_name: "HSR"
 
 # robot
 robot:
-  name: Fetch
+  name: HSR
   action_type: continuous
   action_normalize: true
   base_name: null
@@ -30,29 +30,27 @@ robot:
   self_collision: true
   rendering_params: null
   grasping_mode: physical
-  rigid_trunk: false
-  default_trunk_offset: 0.365
-  default_arm_pose: diagonal30
+  rigid_trunk: true
   controller_config:
     base:
-      name: DifferentialDriveController
+      name: JointController
     arm_0:
-      name: InverseKinematicsController
-      kv: 2.0
+      name: JointController
     gripper_0:
       name: MultiFingerGripperController
       mode: binary
     camera:
       name: JointController
-      use_delta_commands: False
+
 
 # task
 task: reaching_random
 target_dist_min: 1.5
-target_dist_max: 5.0 # 10.0
+target_dist_max: 10.0
 goal_format: polar
-task_obs_dim: 20
-target_height_range: [0.2, 1.2]
+task_obs_dim: 25
+target_height_range: [0.1, 1.2]
+fixed_all_obj: true
 
 # reward
 reward_type: l2
@@ -64,14 +62,13 @@ collision_reward_weight: -0.1
 discount_factor: 0.99
 
 # termination condition
-dist_tol: 0.55  # body width, originally 0.36
+dist_tol: 0.12 # 0.25
 max_step: 500
 max_collisions_allowed: 500
 
 # misc config
 initial_pos_z_offset: 0.1
-collision_ignore_link_a_ids: [0, 1, 2]  # ignore collisions with these robot links
-target_offset: 0.1
+collision_ignore_link_a_ids: [2, 3, 6, 9]  # ignore collisions with these robot links: the four wheels
 
 # sensor spec
 output: [task_obs, scan] #[task_obs, rgb, depth, scan]
@@ -79,26 +76,27 @@ output: [task_obs, scan] #[task_obs, rgb, depth, scan]
 # Primesense Carmine 1.09 short-range RGBD sensor
 # http://xtionprolive.com/primesense-carmine-1.09
 fisheye: false
-image_width: 512 # 128
-image_height: 512 # 128
+image_width: 512
+image_height: 512
 vertical_fov: 90
 # depth
 depth_low: 0.35
 depth_high: 3.0
 # scan
-# SICK TIM571 scanning range finder
-# https://docs.fetchrobotics.com/robot_hardware.html
-# n_horizontal_rays is originally 661, sub-sampled 1/3
-n_horizontal_rays: 220
+# UST-20LX
+# https://docs.hsr.io/archives/hsrb_user_manual/2204/en/overview/parts_functions.html
+# n_horizontal_rays is originally 1080, sub-sampled 1/4
+n_horizontal_rays: 270
 n_vertical_beams: 1
-laser_linear_range: 25.0
-laser_angular_range: 220.0
+laser_linear_range: 3.0
+laser_angular_range: 270.0
 min_laser_dist: 0.05
-laser_link_name: laser_link
+laser_link_name: base_range_sensor_link
 
 # sensor noise
 depth_noise_rate: 0.0
-scan_noise_rate: 0.0
+scan_noise_rate: 0.05
+# noisy_goal: 0.15
 
 # visual objects
 visible_target: true
@@ -110,4 +108,5 @@ simple_orientation: true
 enum_orientation: true
 position_reward: true
 proportional_local_reward: true
-reaching_reward_scale: 0.7
+reaching_reward_scale: 2.0
+

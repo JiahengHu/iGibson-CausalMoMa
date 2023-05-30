@@ -23,6 +23,7 @@ class VisualMarker(BaseObject):
         half_extents=[1, 1, 1],
         length=1,
         initial_offset=[0, 0, 0],
+        initial_ori=[0, 0, 0, 1],
         filename=None,
         scale=[1.0] * 3,
         **kwargs,
@@ -46,6 +47,7 @@ class VisualMarker(BaseObject):
         self.half_extents = half_extents
         self.length = length
         self.initial_offset = initial_offset
+        self.initial_orientation = initial_ori
         self.filename = filename
         self.scale = scale
 
@@ -69,6 +71,7 @@ class VisualMarker(BaseObject):
                 radius=self.radius,
                 length=self.length,
                 visualFramePosition=self.initial_offset,
+                visualFrameOrientation=self.initial_orientation,
             )
         else:
             shape = p.createVisualShape(

@@ -1,7 +1,17 @@
 *.tar.gz'
-data
 assets
 dataset
 ig_dataset
 render/coord.npy
 render/model.pth
+
+# A set of really complicated rules...
+!data/
+data/*
+!data/assets/
+data/assets/*
+!data/assets/models/
+data/assets/models/*
+!data/assets/models/hsr/
+data/assets/models/hsr/*
+!data/assets/models/hsr/hsrb4s.urdf

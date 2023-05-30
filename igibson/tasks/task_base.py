@@ -51,6 +51,9 @@ class BaseTask:
         for termination_condition in self.termination_conditions:
             termination_condition.reset(self, env)
 
+    def get_info(self, env, collision_links=[], action=None, info={}):
+        return info
+
     def get_reward(self, env, collision_links=[], action=None, info={}):
         """
         Aggreate reward functions

@@ -470,7 +470,9 @@ class Simulator:
             if instance.dynamic:
                 self.body_links_awake += self.update_position(instance, force_sync=force_sync or self.first_sync)
         if self.viewer is not None:
-            self.viewer.update()
+            robopos = self.scene.robots[0].get_position()
+            robopos = None
+            self.viewer.update(robopos=robopos)
         if self.first_sync:
             self.first_sync = False
 

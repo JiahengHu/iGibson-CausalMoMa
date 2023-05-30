@@ -19,7 +19,8 @@ def main(selection="user", headless=False, short_exec=False):
     print("*" * 80 + "\nDescription:" + main.__doc__ + "*" * 80)
     # If they have not been downloaded before, download assets
     download_assets()
-    config_filename = os.path.join(igibson.configs_path, "turtlebot_nav.yaml")
+    # config_filename = os.path.join(igibson.configs_path, "turtlebot_nav.yaml")
+    config_filename = os.path.join(igibson.configs_path, "fetch_reaching.yaml")
     config_data = yaml.load(open(config_filename, "r"), Loader=yaml.FullLoader)
     # Reduce texture scale for Mac.
     if platform == "darwin":
@@ -30,7 +31,7 @@ def main(selection="user", headless=False, short_exec=False):
     config_data["enable_pbr"] = True
 
     # config_data["load_object_categories"] = []  # Uncomment this line to accelerate loading with only the building
-    env = iGibsonEnv(config_file=config_data, mode="gui_interactive" if not headless else "headless")
+    env = iGibsonEnv(config_file=config_data, mode="gui_interactive" if not headless else "headless", use_pb_gui=False)
     max_iterations = 10 if not short_exec else 1
     for j in range(max_iterations):
         print("Resetting environment")

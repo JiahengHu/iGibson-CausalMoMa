@@ -254,11 +254,15 @@ class InverseKinematicsController(ManipulationController):
 
         Args:
             target_pos (3-array): absolute (x, y, z) eef position command (in robot base frame)
-            target_quat (4-array): absolute (x, y, z, w) eef quaternion command (in robot base frame)
+            target_quat (4-array): absolute (x, y, z, wiG GUI does not support arrow keys for your OS (needed to control the arm with an IK Controller).) eef quaternion command (in robot base frame)
 
         Returns:
             n-array: corresponding joint positions to match the inputted targets
         """
+
+        # jd = [1] * len(self.joint_damping)
+        # # self.joint_damping = np.array(jd)
+
         # Run IK
         cmd_joint_pos = np.array(
             p.calculateInverseKinematics(

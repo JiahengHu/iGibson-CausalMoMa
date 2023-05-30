@@ -69,6 +69,36 @@ class Fetch(ManipulationRobot, TwoWheelRobot, ActiveCameraRobot):
         super().__init__(reset_joint_pos=reset_joint_pos, **kwargs)
 
     @property
+    def gripper_link_names(self):
+        return {"gripper_link", "r_gripper_finger_link", "l_gripper_finger_link"}
+
+    @property
+    def base_link_names(self):
+        return {"base_link", "caster_wheel_link", "r_wheel_link", "l_wheel_link", "torso_lift_link", "estop_link",
+                "laser_link", "torso_fixed_link"}
+
+    @property
+    def head_link_names(self):
+        return {"head_pan_link", "head_tilt_link", "head_camera_link", "head_camera_rgb_frame",
+                "head_camera_rgb_optical_frame", "head_camera_depth_frame", "head_camera_depth_optical_frame", "eyes"}
+
+    @property
+    def arm_link_names(self):
+        return {"shoulder_pan_link", "shoulder_lift_link", "upperarm_roll_link", "elbow_flex_link",
+                "forearm_roll_link", "wrist_flex_link", "wrist_roll_link", ""}
+
+    def get_link_group(self, link_name):
+        if link_name in self.gripper_link_names:
+            return "gripper"
+        if link_name in self.base_link_names:
+            return "base"
+        if link_name in self.head_link_names:
+            return "head"
+        if link_name in self.arm_link_names:
+            return "arm"
+        raise NotImplementedError
+
+    @property
     def model_name(self):
         """
         :return str: robot model name

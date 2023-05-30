@@ -82,6 +82,9 @@ class ActiveCameraRobot(BaseRobot):
         # Always run super method first
         cfg = super()._default_controller_config
 
+        # TODO: add in default camera config
+        # Maybe we can just try removing the active vision, tbh
+
         # We additionally add in camera default
         cfg["camera"] = {
             self._default_camera_joint_controller_config["name"]: self._default_camera_joint_controller_config,

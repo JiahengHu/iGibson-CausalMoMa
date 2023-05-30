@@ -141,7 +141,7 @@ class KeyboardController:
         # i.e.: if using binary gripper control and when no keypress is active, the gripper action should still the last executed gripper action
         self.last_keypress = None  # Last detected keypress
         self.keypress_mapping = None
-        self.use_omnidirectional_base = robot.model_name in ["Tiago"]  # add other robots with omnidirectional bases
+        self.use_omnidirectional_base = robot.model_name in ["Tiago", "HSR"]  # add other robots with omnidirectional bases
         self.populate_keypress_mapping()
         self.time_last_keyboard_input = time.time()
 
@@ -163,10 +163,10 @@ class KeyboardController:
         # Iterate over all controller info and populate mapping
         for component, info in self.controller_info.items():
             if self.use_omnidirectional_base:
-                self.keypress_mapping["i"] = {"idx": 0, "val": 2.0}
-                self.keypress_mapping["k"] = {"idx": 0, "val": -2.0}
-                self.keypress_mapping["u"] = {"idx": 1, "val": 1.0}
-                self.keypress_mapping["o"] = {"idx": 1, "val": -1.0}
+                self.keypress_mapping["i"] = {"idx": 0, "val": 1.0}
+                self.keypress_mapping["k"] = {"idx": 0, "val": -1.0}
+                self.keypress_mapping["u"] = {"idx": 1, "val": 0.5}
+                self.keypress_mapping["o"] = {"idx": 1, "val": -0.5}
                 self.keypress_mapping["j"] = {"idx": 2, "val": 1.0}
                 self.keypress_mapping["l"] = {"idx": 2, "val": -1.0}
             if info["name"] == "JointController":
@@ -174,8 +174,9 @@ class KeyboardController:
                     ctrl_idx = info["start_idx"] + i
                     self.joint_control_idx.add(ctrl_idx)
             elif info["name"] == "DifferentialDriveController":
-                self.keypress_mapping["i"] = {"idx": info["start_idx"] + 0, "val": 0.2}
-                self.keypress_mapping["k"] = {"idx": info["start_idx"] + 0, "val": -0.2}
+                loc_vel = 1.0 # 0.2
+                self.keypress_mapping["i"] = {"idx": info["start_idx"] + 0, "val": loc_vel}
+                self.keypress_mapping["k"] = {"idx": info["start_idx"] + 0, "val": -loc_vel}
                 self.keypress_mapping["l"] = {"idx": info["start_idx"] + 1, "val": 0.1}
                 self.keypress_mapping["j"] = {"idx": info["start_idx"] + 1, "val": -0.1}
             elif info["name"] == "InverseKinematicsController":
@@ -349,7 +350,8 @@ def main(selection="user", headless=False, short_exec=False):
     print("*" * 80 + "\nDescription:" + main.__doc__ + "*" * 80)
 
     # Create an initial headless dummy scene so we can load the requested robot and extract useful info
-    s = Simulator(mode="headless", use_pb_gui=False)
+    s = Simulator(mode="headless", use_pb_gui=False) #, render_timestep=1/10.0)
+    # Default control frequency is 30 for some reason
     scene = EmptyScene()
     s.import_scene(scene)
 

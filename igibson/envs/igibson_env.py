@@ -22,6 +22,9 @@ from igibson.tasks.interactive_nav_random_task import InteractiveNavRandomTask
 from igibson.tasks.point_nav_fixed_task import PointNavFixedTask
 from igibson.tasks.point_nav_random_task import PointNavRandomTask
 from igibson.tasks.reaching_random_task import ReachingRandomTask
+from igibson.tasks.factored_reaching_task import FactoredReachingRandomTask
+from igibson.tasks.multistep_reaching_random_task import MultistepReachingRandomTask
+from igibson.tasks.factored_multistep_reaching_task import FactoredMultistepReachingRandomTask
 from igibson.tasks.room_rearrangement_task import RoomRearrangementTask
 from igibson.utils.constants import MAX_CLASS_COUNT, MAX_INSTANCE_COUNT
 from igibson.utils.utils import quatToXYZW
@@ -46,6 +49,7 @@ class iGibsonEnv(BaseEnv):
         device_idx=0,
         automatic_reset=False,
         use_pb_gui=False,
+        print_reward=False
     ):
         """
         :param config_file: config_file path
@@ -71,6 +75,7 @@ class iGibsonEnv(BaseEnv):
             use_pb_gui=use_pb_gui,
         )
         self.automatic_reset = automatic_reset
+        self.print_reward = print_reward
 
     def load_task_setup(self):
         """
@@ -108,6 +113,12 @@ class iGibsonEnv(BaseEnv):
             self.task = ReachingRandomTask(self)
         elif self.config["task"] == "room_rearrangement":
             self.task = RoomRearrangementTask(self)
+        elif self.config["task"] == "factored_reaching_random":
+            self.task = FactoredReachingRandomTask(self)
+        elif self.config["task"] == "multistep_reaching_random":
+            self.task = MultistepReachingRandomTask(self)
+        elif self.config["task"] == "factored_multistep_reaching_random":
+            self.task = FactoredMultistepReachingRandomTask(self)
         else:
             try:
                 import bddl
@@ -359,6 +370,7 @@ class iGibsonEnv(BaseEnv):
 
         state = self.get_state()
         info = {}
+        info = self.task.get_info(self, collision_links, action, info)
         reward, info = self.task.get_reward(self, collision_links, action, info)
         done, info = self.task.get_termination(self, collision_links, action, info)
         self.task.step(self)
@@ -412,7 +424,7 @@ class iGibsonEnv(BaseEnv):
         # in case the surface is not perfect smooth (has bumps)
         obj.set_position([pos[0], pos[1], stable_z + offset])
 
-    def test_valid_position(self, obj, pos, orn=None, ignore_self_collision=False):
+    def test_valid_position(self, obj, pos, orn=None, ignore_self_collision=False, offset=None):
         """
         Test if the robot or the object can be placed with no collision.
 
@@ -424,7 +436,10 @@ class iGibsonEnv(BaseEnv):
         """
         is_robot = isinstance(obj, BaseRobot)
 
-        self.set_pos_orn_with_z_offset(obj, pos, orn)
+        if offset is None:
+            self.set_pos_orn_with_z_offset(obj, pos, orn)
+        else:
+            self.set_pos_orn_with_z_offset(obj, pos, orn, offset)
 
         if is_robot:
             obj.reset()

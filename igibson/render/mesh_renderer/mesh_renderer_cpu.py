@@ -1706,8 +1706,19 @@ class MeshRenderer(object):
             # Continue if instance has no visual objects
             if not buf_idxs:
                 continue
-            self.trans_data[buf_idxs] = np.array(instance.poses_trans)
-            self.rot_data[buf_idxs] = np.array(instance.poses_rot)
+
+            if len(buf_idxs) == len(instance.poses_trans):
+                self.trans_data[buf_idxs] = np.array(instance.poses_trans)
+                self.rot_data[buf_idxs] = np.array(instance.poses_rot)
+            else:
+                # We have to assign them based on the obj ids
+                buf_cur_idx = 0
+                for i, obj in enumerate(instance.objects):
+                    n_vis_obj = len(obj.VAO_ids)
+                    obj_buf_idxs = buf_idxs[buf_cur_idx:buf_cur_idx+n_vis_obj]
+                    self.trans_data[obj_buf_idxs] = instance.poses_trans[i]
+                    self.rot_data[obj_buf_idxs] = instance.poses_rot[i]
+                    buf_cur_idx += n_vis_obj
 
         if need_flow_info:
             # this part could be expensive

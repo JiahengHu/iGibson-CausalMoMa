@@ -210,6 +210,13 @@ class BaseRobot(StatefulObject):
         self.reset()
         self.keep_still()
 
+        # Create a dictionary from link idx to link name
+        links_list = self.links
+        link_idx_to_name = {}
+        for key in links_list.keys():
+            link_idx_to_name[links_list[key].link_id] = key
+        self.link_idx_to_name = link_idx_to_name
+
         # Return the body IDs
         return body_ids
 

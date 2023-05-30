@@ -7,7 +7,7 @@ from igibson.tasks.point_nav_fixed_task import PointNavFixedTask
 from igibson.utils.utils import l2_distance, restoreState
 
 log = logging.getLogger(__name__)
-
+MAX_TRIALS = 10000  #increase this such that the training won't stop, originally 100
 
 class PointNavRandomTask(PointNavFixedTask):
     """
@@ -19,6 +19,7 @@ class PointNavRandomTask(PointNavFixedTask):
         super(PointNavRandomTask, self).__init__(env)
         self.target_dist_min = self.config.get("target_dist_min", 1.0)
         self.target_dist_max = self.config.get("target_dist_max", 10.0)
+        self.target_offset = self.config.get("target_offset", -0.2)  # -0.15
 
     def sample_initial_pose_and_target_pos(self, env):
         """
@@ -28,7 +29,7 @@ class PointNavRandomTask(PointNavFixedTask):
         :return: initial pose and target position
         """
         _, initial_pos = env.scene.get_random_point(floor=self.floor_num)
-        max_trials = 100
+        max_trials = MAX_TRIALS
         dist = 0.0
         for _ in range(max_trials):
             _, target_pos = env.scene.get_random_point(floor=self.floor_num)
@@ -43,6 +44,9 @@ class PointNavRandomTask(PointNavFixedTask):
         if not (self.target_dist_min < dist < self.target_dist_max):
             log.warning("Failed to sample initial and target positions")
         initial_orn = np.array([0, 0, np.random.uniform(0, np.pi * 2)])
+        delta_x, delta_y = target_pos[:2] - initial_pos[:2]
+        robot_2_target = np.arctan2(delta_y, delta_x)
+        initial_orn = np.array([0, 0, robot_2_target])
         log.debug("Sampled initial pose: {}, {}".format(initial_pos, initial_orn))
         log.debug("Sampled target position: {}".format(target_pos))
         return initial_pos, initial_orn, target_pos
@@ -67,7 +71,7 @@ class PointNavRandomTask(PointNavFixedTask):
         # the reset
         env.robots[0].reset()
         reset_success = False
-        max_trials = 100
+        max_trials = MAX_TRIALS
 
         # cache pybullet state
         # TODO: p.saveState takes a few seconds, need to speed up
@@ -76,7 +80,8 @@ class PointNavRandomTask(PointNavFixedTask):
             initial_pos, initial_orn, target_pos = self.sample_initial_pose_and_target_pos(env)
             reset_success = env.test_valid_position(
                 env.robots[0], initial_pos, initial_orn, ignore_self_collision=True
-            ) and env.test_valid_position(env.robots[0], target_pos, ignore_self_collision=True)
+            ) and env.test_valid_position(env.robots[0], target_pos, ignore_self_collision=True,
+                                          offset=self.target_offset)
             restoreState(state_id)
             if reset_success:
                 break

@@ -30,7 +30,7 @@ def main(selection="user", headless=False, short_exec=False):
     config_data["enable_shadow"] = False
     config_data["enable_pbr"] = False
 
-    env = iGibsonEnv(config_file=config_data, mode="gui_interactive" if not headless else "headless")
+    env = iGibsonEnv(config_file=config_data, mode="gui_interactive" if not headless else "headless", use_pb_gui=True)
     max_iterations = 10 if not short_exec else 1
     for j in range(max_iterations):
         print("Resetting environment")

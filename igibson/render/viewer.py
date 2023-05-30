@@ -84,9 +84,11 @@ class ViewerSimple:
 class Viewer:
     def __init__(
         self,
-        initial_pos=[6.6, 5.6, 3.4],  # [0, 0, 1.2],
-        initial_view_direction=[-0.7, -0.6, -0.4],  # [1, 0, 0],
+        initial_pos=[2, 1.5, 3.4],  # [0, 0, 1.2],
+        initial_view_direction=[-0.7, -0.6, -0.4],  #[1, 0, 0], #
         initial_up=[0, 0, 1],
+        # initial_view_direction=[1, 0, -1],  # [-0.7, -0.6, -0.4],  #
+        # initial_up=[1, 0, 0],
         simulator=None,
         renderer=None,
         min_cam_z=-1e6,
@@ -647,12 +649,16 @@ class Viewer:
             cv2.putText(frame, help_text, (10, 360), cv2.FONT_HERSHEY_SIMPLEX, 0.5, second_color, 1, cv2.LINE_AA)
             print(help_text)
 
-    def update(self):
+    def update(self, robopos=None):
         """
         Update images of Viewer
         """
         camera_pose = np.array([self.px, self.py, self.pz])
         if self.renderer is not None:
+            if robopos is not None:
+                camera_pose = np.array(robopos)
+                camera_pose[2] += 0.2
+
             self.renderer.set_camera(camera_pose, camera_pose + self.view_direction, self.up)
 
         if self.renderer is not None:

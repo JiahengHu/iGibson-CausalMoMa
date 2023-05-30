@@ -70,6 +70,7 @@ class InteractiveIndoorScene(StaticIndoorScene):
         merge_fixed_links=True,
         rendering_params=None,
         include_robots=True,
+        fixed_all_obj=False
     ):
         """
         :param scene_id: Scene id
@@ -151,6 +152,7 @@ class InteractiveIndoorScene(StaticIndoorScene):
         self.category_ids = get_ig_category_ids()
         self.merge_fixed_links = merge_fixed_links
         self.include_robots = include_robots
+        self.fixed_all_obj = fixed_all_obj
 
         # Current time string to use to save the temporal urdfs
         timestr = time.strftime("%Y%m%d-%H%M%S")
@@ -303,6 +305,9 @@ class InteractiveIndoorScene(StaticIndoorScene):
                     if joint.find("child").attrib["link"] == object_name
                 ][0]
                 fixed_base = connecting_joint.attrib["type"] == "fixed"
+
+                if self.fixed_all_obj:
+                    fixed_base = True
 
                 obj = URDFObject(
                     filename,
@@ -935,6 +940,42 @@ class InteractiveIndoorScene(StaticIndoorScene):
         """
         for obj_name in self.objects_by_name:
             self.objects_by_name[obj_name].force_wakeup()
+
+    def randomize_obj_position(self):
+        """
+        This function is unfinished: should randomly perturb the position of the obj
+        """
+        not_rand_list = ["walls", "floors", "agent"]
+        for int_object in self.objects_by_name:
+            randomize = True
+            for obj_name in not_rand_list:
+                if obj_name in int_object:
+                    randomize = False
+            if not randomize:
+                continue
+
+            obj = self.objects_by_name[int_object]
+            print(obj.get_position_orientation())
+
+    def random_obj_removal(self):
+        # print(self.objects_by_name)
+        if not self.scene_id == 'Rs_int':
+            print("our obj removal only support Rs_int")
+            return None
+        removable_list = ['bottom_cabinet_0', 'pot_plant_1', 'sofa_2', 'floor_lamp_3', 'stool_4',
+                          'breakfast_table_9', 'straight_chair_10', 'straight_chair_11',
+                          'straight_chair_12', 'bottom_cabinet_13', 'pot_plant_14', 'standing_tv_15',
+                          'loudspeaker_16', 'swivel_chair_17', 'breakfast_table_18', 'shelf_19', 'shelf_20', 'shelf_21',
+                          'table_lamp_22', 'straight_chair_23', 'straight_chair_24', 'countertop_26']
+        remove_name = random.choices(removable_list, k=4)
+        must_remove = ["coffee_table_5", 'laptop_7',  'pot_plant_6', "carpet_27"]
+        for obj in must_remove:
+            remove_name.append(obj)
+
+        positions = [[100, 100, 0], [-100, 100, 0], [100, -100, 0], [-100, -100, 0], [100, 0, 0],
+                     [-100, 0, 0], [0, -100, 0], [0, 100, 0]]
+        for r_obj, pos in zip(remove_name, positions):
+            self.objects_by_name[r_obj].set_position(pos)
 
     def reset_scene_objects(self):
         """
